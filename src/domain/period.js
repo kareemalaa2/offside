@@ -14,6 +14,9 @@ export const finishedSessions = (S) => S.sessions.filter((s) => s.end);
 export const findSession = (S, id) => S.sessions.find((s) => s.id === id);
 export const findDevice = (S, id) => S.devices.find((d) => d.id === id);
 
+/** Short number shown to people (ids are unique timestamps so devices never clash). */
+export const sessionNo = (s) => s.no ?? s.id;
+
 /** Predicate for the reports range selector. */
 export function inRange(S, range, ts, now = Date.now()) {
   const k = dayKey(ts);
