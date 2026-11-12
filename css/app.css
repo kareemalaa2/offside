@@ -25,7 +25,14 @@ header {
 .logo { font-weight: 800; font-size: 22px; letter-spacing: 3px; color: var(--red2); text-shadow: 0 0 14px #e11d2e88; direction: ltr; line-height: 1.1; }
 .logo small { display: block; font-size: 10px; letter-spacing: 1px; color: var(--mut); text-shadow: none; }
 #vt { font-weight: 700; font-size: 15px; }
-#clk { margin-inline-start: auto; color: var(--mut); font-size: 13px; direction: ltr; font-variant-numeric: tabular-nums; }
+.sync { margin-inline-start: auto; font-size: 11px; padding: 2px 8px; border-radius: 20px; background: #222; white-space: nowrap; }
+.sync.ok { color: var(--ok); } .sync.pending { color: var(--warn); } .sync.offline { color: var(--red2); }
+.sync:empty { display: none; }
+#login { display: none; position: fixed; inset: 0; z-index: 40; background: var(--bg); overflow: auto; padding: calc(var(--safe-t) + 24px) 16px 24px; }
+#login.on { display: flex; align-items: center; justify-content: center; }
+.login-box { width: min(380px, 100%); background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--red); border-radius: 16px; padding: 20px; }
+.logo.big { font-size: 32px; text-align: center; margin-bottom: 10px; }
+#clk { margin-inline-start: 8px; color: var(--mut); font-size: 13px; direction: ltr; font-variant-numeric: tabular-nums; }
 
 /* ---------- bottom tab bar (phones) ---------- */
 nav#nav {
