@@ -1,6 +1,6 @@
 // Service worker: makes the app open and work with no internet.
 // Bump VERSION whenever you change any file so phones pick up the update.
-const VERSION = 'offside-v2.1.0';
+const VERSION = 'offside-v2.2.0';
 const SHELL = [
   './',
   './index.html',
@@ -20,6 +20,7 @@ const SHELL = [
   './src/data/syncedRepository.js',
   './src/presentation/login.js',
   './src/presentation/permissions.js',
+  './src/presentation/alerts.js',
   './src/domain/pricing.js',
   './src/domain/period.js',
   './src/domain/inventory.js',
@@ -81,6 +82,17 @@ self.addEventListener('fetch', (e) => {
         })
         .catch(() => cached || (req.mode === 'navigate' ? cache.match('./index.html') : undefined));
       return cached || network;
+    }),
+  );
+});
+
+// Tapping a "device almost done" notification opens (or focuses) the app.
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const c of list) if ('focus' in c) return c.focus();
+      return self.clients.openWindow('./');
     }),
   );
 });
