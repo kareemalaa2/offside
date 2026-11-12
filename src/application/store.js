@@ -8,11 +8,14 @@ export class Store {
     this.repo = repo;
     this.state = migrate(repo.load());
     this.onSaveError = null;
+    this.readOnly = false;
     this.repo.save(this.state);
   }
 
   /** Run a mutation against the state and persist it. Returns the mutator's result. */
   commit(mutator) {
+    // View-only accounts: refuse every change before it touches the state.
+    if (this.readOnly) return { ok: false, error: 'حساب مشاهدة فقط' };
     const result = mutator(this.state);
     this.persist();
     return result;
