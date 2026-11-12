@@ -4,6 +4,7 @@ import { MODE, ROUND_OPTIONS, DEVICE_TYPES } from '../../core/labels.js';
 import { ctx, ui } from '../context.js';
 import { $, toast, saveFile, copyText } from '../ui.js';
 import { options } from '../components.js';
+import { notificationsSupported, notificationsOn, enableNotifications } from '../alerts.js';
 
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -17,10 +18,25 @@ function installBox() {
     ${ui.installPrompt ? '<button class="btn r" data-act="installApp">تثبيت الآن</button>' : ''}</div>`;
 }
 
+function notifyBox() {
+  const st = ctx.S.settings;
+  const status = !notificationsSupported()
+    ? '<span class="mut">الجهاز ده مش بيدعم الإشعارات (على الآيفون لازم التطبيق يكون مضاف للشاشة الرئيسية)</span>'
+    : notificationsOn()
+      ? '<b class="ok">✔ الإشعارات مفعّلة على الجهاز ده</b>'
+      : Notification.permission === 'denied'
+        ? '<span class="red">الإشعارات مقفولة من إعدادات المتصفح/الموبايل – افتحها من هناك</span>'
+        : '<button class="btn r" data-act="enableNotifications">🔔 تفعيل الإشعارات</button>';
+  return `<div class="box"><b>🔔 تنبيه انتهاء الأجهزة</b>
+    <p class="sm">قبل انتهاء أي جلسة بوقت محدد بـ <b>${+st.alert || 0} دقيقة</b> (من "قواعد الحساب" تحت) بيظهر تنبيه كبير على الشاشة مع صوت، وتاني لما الوقت يخلص. بيظهر على كل جهاز فاتح التطبيق، وكمان أول ما حد يفتح السيستم.</p>
+    <p class="sm mut">لو التطبيق مفتوح في الخلفية بيوصل إشعار على الموبايل (لازم تفعّله مرة على كل جهاز).</p>
+    ${status}</div>`;
+}
+
 export function render() {
   const S = ctx.S;
   const st = S.settings;
-  return `${installBox()}
+  return `${installBox()}${notifyBox()}
   <div class="box"><b>☁ الحساب والمزامنة</b>
     <p class="sm">داخل بـ <b dir="ltr">${esc(ctx.cloud?.email || '')}</b> • كل التعديلات بتتزامن لحظياً مع باقي الأجهزة، ولو النت قطع بتتحفظ وتترفع لما يرجع.</p>
     <button class="btn g" data-act="logout">🚪 تسجيل الخروج</button></div>
@@ -70,6 +86,11 @@ function importData(text) {
 }
 
 export const actions = {
+  async enableNotifications() {
+    const r = await enableNotifications();
+    toast(r === 'granted' ? 'تم تفعيل الإشعارات' : 'الإشعارات مش مفعّلة');
+    ctx.render();
+  },
   logout() {
     ctx.cloud?.signOut();
   },
