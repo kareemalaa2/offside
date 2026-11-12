@@ -1,6 +1,6 @@
 // Service worker: makes the app open and work with no internet.
 // Bump VERSION whenever you change any file so phones pick up the update.
-const VERSION = 'offside-v2.0.0';
+const VERSION = 'offside-v2.1.0';
 const SHELL = [
   './',
   './index.html',
@@ -19,6 +19,7 @@ const SHELL = [
   './src/data/cloudRepository.js',
   './src/data/syncedRepository.js',
   './src/presentation/login.js',
+  './src/presentation/permissions.js',
   './src/domain/pricing.js',
   './src/domain/period.js',
   './src/domain/inventory.js',
