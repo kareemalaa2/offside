@@ -9,6 +9,7 @@ import { ctx, ui } from './presentation/context.js';
 import { toast, $ } from './presentation/ui.js';
 import { startApp, render, applyRemote } from './presentation/app.js';
 import { showLogin, hideLogin } from './presentation/login.js';
+import { registerForPush } from './presentation/alerts.js';
 
 const local = new LocalStorageRepository();
 const cloud = new CloudRepository(firebaseConfig, SHOP_ID);
@@ -66,6 +67,7 @@ cloud.onAuth(async (user) => {
   }
   setRole(role);
   hideLogin();
+  registerForPush(); // refresh this device's push token (if notifications are allowed)
   if (!started) {
     startApp();
     started = true;
