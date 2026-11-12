@@ -23,7 +23,8 @@ const RANK = { soon: 1, over: 2 };
 let current = [];
 
 export function checkAlerts(now = Date.now()) {
-  const due = ctx.svc.sessions.dueAlerts(now);
+  // viewers don't manage devices: they only get "session ended" pushes (sent by the notifier)
+  const due = isViewer() ? [] : ctx.svc.sessions.dueAlerts(now);
   const ids = new Set(due.map((a) => a.s.id));
 
   // forget sessions that ended / were paused / extended
