@@ -3,6 +3,7 @@ import { esc, fmt, sum, dayKey } from '../../core/utils.js';
 import { MODE, EXPENSE_CATS } from '../../core/labels.js';
 import { elapsed } from '../../domain/pricing.js';
 import { cogsOf } from '../../domain/inventory.js';
+import { sessionNo } from '../../domain/period.js';
 import { ctx } from '../context.js';
 import { $, toast } from '../ui.js';
 import { bars, stat, table, options } from '../components.js';
@@ -56,7 +57,7 @@ export function render() {
       ? `<h2>الديون</h2><div class="box">${table(
           ['#', 'العميل', 'الجهاز', 'المبلغ', ''],
           unpaid.map((s) => [
-            '#' + s.id, esc(s.customer || '—'), esc(s.dn), fmt(s.amount) + ' ج',
+            '#' + sessionNo(s), esc(s.customer || '—'), esc(s.dn), fmt(s.amount) + ' ج',
             `<button class="btn sm" data-act="payDebt" data-id="${s.id}" data-p="cash">نقدي</button> <button class="btn sm" data-act="payDebt" data-id="${s.id}" data-p="insta">InstaPay</button>`,
           ]),
         )}</div>`

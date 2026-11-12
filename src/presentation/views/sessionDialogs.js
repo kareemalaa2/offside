@@ -2,7 +2,7 @@
 import { esc, fmt, dur, num } from '../../core/utils.js';
 import { MODE, PAY } from '../../core/labels.js';
 import { rateFor, playCost, sessionTotal, elapsed, drinksTotal } from '../../domain/pricing.js';
-import { findSession, findDevice } from '../../domain/period.js';
+import { findSession, findDevice, sessionNo } from '../../domain/period.js';
 import { ctx, ui } from '../context.js';
 import { openModal, setModalBody, hideModal, toast, $, $$, shareText } from '../ui.js';
 import { invoiceHtml, invoiceText, options } from '../components.js';
@@ -63,14 +63,14 @@ function drinksBody(id) {
 /* ---------- invoice / summary ---------- */
 export const liveInvoiceBody = (id) => {
   const s = findSession(S(), id);
-  return `<h3>🧾 الحساب الحالي – جلسة #${id}</h3>${invoiceHtml(S(), s)}
+  return `<h3>🧾 الحساب الحالي – جلسة #${sessionNo(s)}</h3>${invoiceHtml(S(), s)}
     <p class="mut sm">الجلسة لسه شغالة والعداد مكمل.</p>
     <div class="row"><button class="btn" data-act="shareInvoice" data-id="${id}">📤 مشاركة</button><button class="btn r grow" data-act="closeModal">إغلاق</button></div>`;
 };
 
 function summaryBody(id) {
   const s = findSession(S(), id);
-  return `<h3>ملخص الحساب #${s.id}</h3>${invoiceHtml(S(), s)}
+  return `<h3>ملخص الحساب #${sessionNo(s)}</h3>${invoiceHtml(S(), s)}
     <label>تسجيل الدفع</label>
     <div class="row">${Object.keys(PAY).map((p) => `<button class="btn ${s.pay === p ? 'r' : ''}" data-act="setPay" data-id="${id}" data-p="${p}">${PAY[p]}</button>`).join('')}</div>
     <div class="row np"><button class="btn" data-act="shareInvoice" data-id="${id}">📤 مشاركة / واتساب</button><button class="btn" data-act="printInvoice">🖨 طباعة</button><button class="btn g" data-act="closeModal">إغلاق</button></div>`;
@@ -80,7 +80,7 @@ export const openSummary = (id) => openModal(summaryBody(id));
 /* ---------- edit ---------- */
 export function openEdit(id) {
   const s = findSession(S(), id);
-  openModal(`<h3>تعديل الجلسة #${s.id}</h3>
+  openModal(`<h3>تعديل الجلسة #${sessionNo(s)}</h3>
     <label>اسم العميل</label><input id="ec" value="${esc(s.customer)}" class="w100">
     <label>نوع اللعب</label><select id="em" class="w100">${options([['single', 'Single'], ['multi', 'Multi']], s.mode)}</select>
     <label>خصم (سالب) أو إضافة (موجب) بالجنيه</label><input id="ea" type="number" inputmode="decimal" step="0.5" value="${s.adj || 0}" class="w100">
@@ -176,7 +176,7 @@ export const sessionActions = {
     close();
   },
   askDeleteSession(d) {
-    openModal(`<h3>حذف الجلسة #${d.id}؟</h3><p>لا يمكن التراجع. المشروبات هترجع للمخزون.</p>
+    openModal(`<h3>حذف الجلسة #${sessionNo(sess(d))}؟</h3><p>لا يمكن التراجع. المشروبات هترجع للمخزون.</p>
       <div class="row"><button class="btn r grow" data-act="doDeleteSession" data-id="${d.id}">حذف</button><button class="btn g" data-act="closeModal">إلغاء</button></div>`);
   },
   doDeleteSession(d) {

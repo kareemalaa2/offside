@@ -21,6 +21,9 @@ export function render() {
   const S = ctx.S;
   const st = S.settings;
   return `${installBox()}
+  <div class="box"><b>☁ الحساب والمزامنة</b>
+    <p class="sm">داخل بـ <b dir="ltr">${esc(ctx.cloud?.email || '')}</b> • كل التعديلات بتتزامن لحظياً مع باقي الأجهزة، ولو النت قطع بتتحفظ وتترفع لما يرجع.</p>
+    <button class="btn g" data-act="logout">🚪 تسجيل الخروج</button></div>
   <div class="box"><b>بيانات المحل</b><div class="two">
     <div><label>الاسم</label><input class="w100" value="${esc(st.shop)}" data-change="setSetting" data-k="shop"></div>
     <div><label>الهاتف</label><input class="w100" type="tel" value="${esc(st.phone)}" data-change="setSetting" data-k="phone"></div></div>
@@ -51,7 +54,7 @@ export function render() {
     <div class="row"><button class="btn r" data-act="changePassword">تغيير</button></div></div>
 
   <div class="box"><b>💾 نسخ احتياطي</b>
-    <p class="mut sm">البيانات محفوظة على الجهاز ده بس (من غير سيرفر). اعمل نسخة احتياطية دورياً وابعتها لنفسك على واتساب أو Drive. نفس الملف بيتنقل بين الكمبيوتر والموبايل.</p>
+    <p class="mut sm">البيانات محفوظة على السحابة ومتزامنة بين الأجهزة. النسخة الاحتياطية للأمان الزيادة، أو لنقل بيانات النسخة القديمة (الاستيراد بيرفعها على السحابة لكل الأجهزة).</p>
     <div class="row"><button class="btn r" data-act="exportFile">📤 حفظ / مشاركة ملف النسخة</button>
       <label class="btn">📥 استيراد من ملف<input type="file" accept=".json,application/json,text/plain" hidden data-change="importFile"></label></div>
     <details><summary class="mut sm">نسخ / لصق كنص</summary>
@@ -67,6 +70,9 @@ function importData(text) {
 }
 
 export const actions = {
+  logout() {
+    ctx.cloud?.signOut();
+  },
   setSetting(d, el) {
     ctx.svc.settings.set(d.k, el.value);
     if (d.k === 'shop') ctx.render();

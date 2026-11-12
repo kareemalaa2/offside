@@ -2,6 +2,7 @@
 import { esc, fmt, dur, fmtTime, sum, dayKey } from '../../core/utils.js';
 import { MODE, PAY } from '../../core/labels.js';
 import { elapsed } from '../../domain/pricing.js';
+import { sessionNo } from '../../domain/period.js';
 import { ctx, ui } from '../context.js';
 import { table, stat, options } from '../components.js';
 import { requireAuth } from '../auth.js';
@@ -15,7 +16,7 @@ function filtered(S) {
   if (F.pay) a = a.filter((s) => s.pay === F.pay);
   if (F.q) {
     const q = F.q.toLowerCase();
-    a = a.filter((s) => `${s.customer}${s.dn}${s.id}`.toLowerCase().includes(q));
+    a = a.filter((s) => `${s.customer}${s.dn}${sessionNo(s)}`.toLowerCase().includes(q));
   }
   return a;
 }
@@ -29,7 +30,7 @@ export function render() {
   const DS = sum(a, (s) => (s.adj < 0 ? -s.adj : 0));
 
   const rows = a.map((s) => [
-    '#' + s.id,
+    '#' + sessionNo(s),
     `${esc(s.dn)}${s.customer ? ` <small class="mut">(${esc(s.customer)})</small>` : ''}`,
     s.dt.toUpperCase(),
     MODE[s.mode],
