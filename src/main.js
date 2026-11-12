@@ -34,12 +34,37 @@ const setSync = ({ offline, pending }) => {
   el.className = 'sync ' + ui.sync;
 };
 
-cloud.onAuth((user) => {
+/** Apply the account's role: viewers get a read-only app (and read-only data layer). */
+const ROLE_KEY = 'offside_role';
+function setRole(role) {
+  ui.role = role;
+  const ro = role === 'viewer';
+  store.readOnly = ro;
+  cloud.readOnly = ro;
+  const badge = $('#role');
+  if (badge) badge.textContent = ro ? '👁 مشاهدة فقط' : '';
+}
+
+cloud.onAuth(async (user) => {
   if (!user) {
     cloud.disconnect();
     showLogin(cloud);
     return;
   }
+  // Role comes from the staff list. Offline with no saved role -> safest is view-only.
+  let role = await cloud.getRole();
+  if (role === undefined) role = localStorage.getItem(ROLE_KEY + ':' + cloud.email) || 'viewer';
+  if (role === null) {
+    toast('الحساب ده مش متسجل في قائمة الموظفين');
+    await cloud.signOut();
+    return;
+  }
+  try {
+    localStorage.setItem(ROLE_KEY + ':' + cloud.email, role);
+  } catch {
+    /* ignore */
+  }
+  setRole(role);
   hideLogin();
   if (!started) {
     startApp();
@@ -49,6 +74,7 @@ cloud.onAuth((user) => {
   let first = true;
   cloud.connect((remote) => {
     if (remote === null) {
+      if (cloud.readOnly) return; // a viewer never creates the shop data
       // Brand-new cloud: upload what this device already has (e.g. data from the old version).
       cloud.save(store.state);
       toast('تم رفع بيانات الجهاز ده على السحابة');
