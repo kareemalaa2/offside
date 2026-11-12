@@ -12,6 +12,7 @@ import { sessionNo } from '../domain/period.js';
 import { ctx } from './context.js';
 import { $, beep } from './ui.js';
 import { isViewer } from './permissions.js';
+import { VAPID_KEY } from '../data/firebaseConfig.js';
 
 /** sessionId -> highest level the user has dismissed on this device ('soon' | 'over') */
 const dismissed = new Map();
@@ -83,7 +84,20 @@ export const notificationsOn = () => notificationsSupported() && Notification.pe
 
 export async function enableNotifications() {
   if (!notificationsSupported()) return 'unsupported';
-  return Notification.requestPermission();
+  const r = await Notification.requestPermission();
+  if (r === 'granted') await registerForPush();
+  return r;
+}
+
+/** Save this device's push token so reminders arrive even when the app is closed. */
+export async function registerForPush() {
+  if (!notificationsOn() || !ctx.cloud) return false;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    return await ctx.cloud.registerPush(reg, VAPID_KEY);
+  } catch {
+    return false;
+  }
 }
 
 async function notifyPhone(list) {
