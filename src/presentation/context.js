@@ -18,6 +18,8 @@ export const ui = {
   expDraft: { c: 'كهرباء', a: '', n: '' },
   closeDraft: { a: null, n: '' },
   installPrompt: null,
+  /** 'owner' | 'staff' | 'viewer' (from the staff list in Firestore) */
+  role: 'owner',
 };
 
 export const ctx = {

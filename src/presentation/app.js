@@ -2,6 +2,7 @@
 import { ctx, ui, isUnlocked } from './context.js';
 import { $, toast, beep, openModal, hideModal, setModalBody, unlockAudio } from './ui.js';
 import { requireAuth, authActions } from './auth.js';
+import { isViewer, isAllowed, applyReadOnly } from './permissions.js';
 import { sessionActions, openStart, liveInvoiceBody } from './views/sessionDialogs.js';
 import * as home from './views/home.js';
 import * as log from './views/log.js';
@@ -36,7 +37,7 @@ function navHtml() {
     `<button class="${ui.view === k ? 'on' : ''}" data-act="go" data-v="${k}"><i>${icon}</i><span>${label}</span></button>`;
   const inAdmin = PROTECTED.has(ui.view);
   return MAIN_TABS.map(tab).join('') +
-    `<button class="${inAdmin ? 'on' : ''}" data-act="adminMenu"><i>🛠</i><span>الإدارة${isUnlocked() ? '' : ' 🔒'}</span></button>`;
+    `<button class="${inAdmin ? 'on' : ''}" data-act="adminMenu"><i>🛠</i><span>الإدارة${isUnlocked() || isViewer() ? '' : ' 🔒'}</span></button>`;
 }
 
 export function render() {
@@ -45,6 +46,8 @@ export function render() {
   $('#main').innerHTML = VIEWS[ui.view].render();
   const title = [...MAIN_TABS, ...ADMIN_TABS].find((t) => t[0] === ui.view);
   $('#vt').textContent = title ? title[2] : '';
+  document.body.classList.toggle('viewer', isViewer());
+  applyReadOnly();
 }
 
 function go(view) {
@@ -53,7 +56,8 @@ function go(view) {
     render();
     window.scrollTo(0, 0);
   };
-  if (PROTECTED.has(view)) return requireAuth(show);
+  // viewers can't change anything, so they don't need the shop's admin password
+  if (PROTECTED.has(view) && !isViewer()) return requireAuth(show);
   show();
 }
 
@@ -77,8 +81,8 @@ const ACTIONS = {
   },
   adminMenu() {
     openModal(`<h3>🛠 الإدارة</h3><div class="menu">
-      ${ADMIN_TABS.map(([k, icon, label]) => `<button class="btn ${ui.view === k ? 'r' : ''}" data-act="go" data-v="${k}">${icon} ${label}${isUnlocked() ? '' : ' 🔒'}</button>`).join('')}
-      ${isUnlocked() ? '<button class="btn g" data-act="lock">🔒 قفل الإدارة</button>' : ''}
+      ${ADMIN_TABS.map(([k, icon, label]) => `<button class="btn ${ui.view === k ? 'r' : ''}" data-act="go" data-v="${k}">${icon} ${label}${isUnlocked() || isViewer() ? '' : ' 🔒'}</button>`).join('')}
+      ${isUnlocked() && !isViewer() ? '<button class="btn g" data-act="lock">🔒 قفل الإدارة</button>' : ''}
       </div><div class="row"><button class="btn g grow" data-act="closeModal">إغلاق</button></div>`);
   },
 };
@@ -86,6 +90,7 @@ const ACTIONS = {
 function dispatch(name, el, e) {
   const fn = ACTIONS[name];
   if (!fn) return console.warn('Unknown action', name);
+  if (!isAllowed(name)) return toast('👁 حساب مشاهدة فقط – مش مسموح بالتعديل');
   try {
     fn({ ...el.dataset }, el, e);
   } catch (err) {

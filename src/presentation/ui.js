@@ -1,5 +1,6 @@
 // Presentation: DOM primitives (modal sheet, toast, sound, share/download).
 import { ui } from './context.js';
+import { applyReadOnly } from './permissions.js';
 
 export const $ = (s, root = document) => root.querySelector(s);
 export const $$ = (s, root = document) => [...root.querySelectorAll(s)];
@@ -17,6 +18,7 @@ export function toast(text) {
 export function openModal(html, { focus } = {}) {
   const m = $('#m');
   m.innerHTML = `<div class="mb" role="dialog" aria-modal="true">${html}</div>`;
+  applyReadOnly(m);
   m.classList.add('on');
   document.body.classList.add('locked');
   ui.modalOpen = true;
@@ -25,7 +27,10 @@ export function openModal(html, { focus } = {}) {
 
 export function setModalBody(html) {
   const mb = $('#m .mb');
-  if (mb) mb.innerHTML = html;
+  if (mb) {
+    mb.innerHTML = html;
+    applyReadOnly(mb);
+  }
 }
 
 export function hideModal() {
