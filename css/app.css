@@ -180,6 +180,20 @@ tr.empty td { color: var(--mut); text-align: center; }
 .inv div { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px dashed var(--line); }
 .inv .inv-total { font-size: 17px; color: var(--red2); }
 
+/* ---------- big "device almost done" reminder ---------- */
+#alert { display: none; position: fixed; inset: 0; z-index: 35; background: #000c; align-items: center; justify-content: center; padding: calc(var(--safe-t) + 12px) 12px calc(var(--safe-b) + 12px); overflow: auto; }
+#alert.on { display: flex; }
+.alert-wrap { width: min(520px, 100%); display: grid; gap: 12px; max-height: 100%; }
+.alert-head { text-align: center; font-weight: 800; font-size: 18px; color: var(--tx); }
+.alert-card { background: #18181d; border: 3px solid var(--warn); border-radius: 18px; padding: 18px; text-align: center; animation: pulse 1.2s ease-in-out infinite; }
+.alert-card.over { border-color: var(--red2); box-shadow: 0 0 30px #e11d2e88; }
+.alert-title { font-size: 24px; font-weight: 800; color: var(--warn); }
+.alert-card.over .alert-title { color: var(--red2); }
+.alert-time { font: 800 54px ui-monospace, Menlo, monospace; direction: ltr; font-variant-numeric: tabular-nums; margin: 6px 0; }
+.alert-sub { color: var(--mut); font-size: 13px; margin-bottom: 6px; }
+@keyframes pulse { 50% { transform: scale(1.015); } }
+@media (prefers-reduced-motion: reduce) { .alert-card { animation: none; } }
+
 #toast {
   position: fixed; bottom: calc(var(--nav-h) + var(--safe-b) + 14px); left: 50%; transform: translateX(-50%);
   background: var(--red); padding: 10px 18px; border-radius: 12px; z-index: 30; display: none; max-width: 90vw; text-align: center; box-shadow: 0 8px 24px #000a;
