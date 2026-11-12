@@ -1,6 +1,6 @@
 // Service worker: makes the app open and work with no internet.
 // Bump VERSION whenever you change any file so phones pick up the update.
-const VERSION = 'offside-v1.0.0';
+const VERSION = 'offside-v2.0.0';
 const SHELL = [
   './',
   './index.html',
@@ -15,6 +15,10 @@ const SHELL = [
   './src/data/defaults.js',
   './src/data/migrations.js',
   './src/data/storage.js',
+  './src/data/firebaseConfig.js',
+  './src/data/cloudRepository.js',
+  './src/data/syncedRepository.js',
+  './src/presentation/login.js',
   './src/domain/pricing.js',
   './src/domain/period.js',
   './src/domain/inventory.js',
@@ -63,7 +67,8 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   const sameOrigin = url.origin === location.origin;
   const isFont = /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
-  if (!sameOrigin && !isFont) return;
+  const isFirebaseLib = url.hostname === 'www.gstatic.com' && url.pathname.startsWith('/firebasejs/');
+  if (!sameOrigin && !isFont && !isFirebaseLib) return;
 
   e.respondWith(
     caches.open(VERSION).then(async (cache) => {
