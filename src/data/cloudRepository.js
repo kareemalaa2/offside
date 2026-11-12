@@ -10,8 +10,9 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  doc, collection, onSnapshot, writeBatch, getDoc,
+  doc, collection, onSnapshot, writeBatch, getDoc, setDoc,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getMessaging, getToken, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
 
 export const LISTS = ['sessions', 'expenses', 'sales', 'buys', 'stm', 'cashm', 'closes', 'custs', 'books'];
 const META_KEYS = ['seq', 'settings', 'devices', 'drinks', 'pw', 'cur'];
@@ -71,6 +72,29 @@ export class CloudRepository {
   }
   get email() {
     return this.auth.currentUser?.email || '';
+  }
+
+  /* ---------- push notifications (work even when the app is closed) ---------- */
+  /**
+   * Register this phone/PC for background pushes and save its token, so the
+   * notifier (Cloudflare Worker) can reach it. Needs notification permission.
+   * @returns {Promise<boolean>}
+   */
+  async registerPush(swRegistration, vapidKey) {
+    try {
+      if (!this.auth.currentUser || !(await isSupported())) return false;
+      const token = await getToken(getMessaging(this.app), { vapidKey, serviceWorkerRegistration: swRegistration });
+      if (!token) return false;
+      await setDoc(doc(this.db, 'pushTokens', token), {
+        email: this.email.toLowerCase(),
+        ts: Date.now(),
+        ua: navigator.userAgent.slice(0, 120),
+      });
+      return true;
+    } catch (e) {
+      console.warn('push registration failed', e);
+      return false;
+    }
   }
 
   /* ---------- live read ---------- */

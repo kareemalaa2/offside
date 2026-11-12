@@ -11,3 +11,6 @@ export const firebaseConfig = {
 
 /** All devices share this one shop document. */
 export const SHOP_ID = 'main';
+
+/** Web Push public key (Firebase Cloud Messaging → Web Push certificates). Public by design. */
+export const VAPID_KEY = 'BOUqfPYEbxnWW_Lms-AHBToJpDapczsaNWFx5pQSRm5TTVIzalwq9cO_Pl8W0nm3-VZgCd8WAFLw2m3JmzRrjzI';
