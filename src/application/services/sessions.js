@@ -129,22 +129,20 @@ export const sessionService = (store) => ({
     });
   },
 
-  /** Mark & return sessions that just hit "almost over" / "time's up". */
-  collectAlerts(now = Date.now()) {
+  /**
+   * Running timed sessions that are "almost over" or "time's up" right now.
+   * Pure read: nothing is saved, so every device (and every app open) gets its own reminder.
+   */
+  dueAlerts(now = Date.now()) {
     const S = store.state;
-    const alerts = [];
+    const before = (+S.settings.alert || 0) * 6e4;
+    const out = [];
     for (const s of S.sessions) {
       if (s.end || !s.plan || s.status !== 'running') continue;
       const left = remaining(s, now);
-      if (left <= 0 && !s.w2) {
-        s.w2 = s.w1 = 1;
-        alerts.push({ s, kind: 'over' });
-      } else if (left > 0 && left <= S.settings.alert * 6e4 && !s.w1) {
-        s.w1 = 1;
-        alerts.push({ s, kind: 'soon' });
-      }
+      if (left <= 0) out.push({ s, kind: 'over', left });
+      else if (left <= before) out.push({ s, kind: 'soon', left });
     }
-    if (alerts.length) store.persist();
-    return alerts;
+    return out;
   },
 });
