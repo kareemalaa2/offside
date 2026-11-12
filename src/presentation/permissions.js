@@ -10,6 +10,7 @@ const VIEW_ONLY = new Set([
   'closeModal', 'go', 'adminMenu', 'lock', 'checkPassword', 'logout', 'installApp',
   'toggleHidden', 'toggleCost', 'logFilter', 'clearLogFilter', 'reportRange',
   'bookingFilter', 'custSearch', 'showSummary', 'liveInvoice', 'shareInvoice', 'printInvoice',
+  'dismissAlert', 'dismissAllAlerts', 'enableNotifications',
 ]);
 
 export const isAllowed = (action) => !isViewer() || VIEW_ONLY.has(action);

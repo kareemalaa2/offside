@@ -1,8 +1,9 @@
 // Presentation: router, navigation, event delegation and the 1-second ticker.
 import { ctx, ui, isUnlocked } from './context.js';
-import { $, toast, beep, openModal, hideModal, setModalBody, unlockAudio } from './ui.js';
+import { $, toast, openModal, hideModal, setModalBody, unlockAudio } from './ui.js';
 import { requireAuth, authActions } from './auth.js';
 import { isViewer, isAllowed, applyReadOnly } from './permissions.js';
+import { checkAlerts, alertActions } from './alerts.js';
 import { sessionActions, openStart, liveInvoiceBody } from './views/sessionDialogs.js';
 import * as home from './views/home.js';
 import * as log from './views/log.js';
@@ -74,6 +75,11 @@ const ACTIONS = {
   ...closing.actions,
   ...bookings.actions,
   ...customers.actions,
+  ...alertActions,
+  alertEnd(d) {
+    alertActions.dismissAlert({ id: d.id, k: 'over' });
+    sessionActions.askEnd(d);
+  },
   openStart: (d) => openStart(d.id),
   go(d) {
     hideModal();
@@ -136,10 +142,7 @@ function tick() {
   const now = Date.now();
   $('#clk').textContent = new Date(now).toLocaleTimeString('en-GB');
 
-  for (const { s, kind } of ctx.svc.sessions.collectAlerts(now)) {
-    beep();
-    toast((kind === 'over' ? 'انتهى وقت ' : 'اقترب انتهاء ') + s.dn);
-  }
+  checkAlerts(now);
 
   if (ui.liveInvoiceId && ui.modalOpen) {
     const s = ctx.S.sessions.find((x) => x.id === ui.liveInvoiceId);
