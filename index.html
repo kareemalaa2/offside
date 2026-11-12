@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>OFFSIDE – إدارة محل بلايستيشن</title>
+  <meta name="description" content="إدارة محل بلايستيشن: الأجهزة، الجلسات، المشروبات، الخزنة والتقارير">
+  <meta name="theme-color" content="#0b0b0d">
+
+  <!-- PWA / install -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <!-- iOS home-screen app -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OFFSIDE">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header>
+    <div class="logo">OFFSIDE<small id="sh"></small></div>
+    <span id="vt"></span>
+    <span id="clk"></span>
+  </header>
+  <nav id="nav"></nav>
+  <main id="main"></main>
+  <div id="m"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <noscript>التطبيق محتاج JavaScript.</noscript>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
