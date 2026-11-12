@@ -1,7 +1,7 @@
 // Application: session use-cases (start, pause, switch, end, pay, edit, drinks).
-import { ok, fail } from '../../core/utils.js';
+import { ok, fail, uid } from '../../core/utils.js';
 import { elapsed, rateFor, sessionTotal, remaining } from '../../domain/pricing.js';
-import { findSession, findDevice } from '../../domain/period.js';
+import { findSession, findDevice, sessionNo } from '../../domain/period.js';
 import { findProduct, canTake, applyMove } from '../../domain/inventory.js';
 
 export const sessionService = (store) => ({
@@ -11,7 +11,7 @@ export const sessionService = (store) => ({
       if (!d) return fail('الجهاز غير موجود');
       if (S.sessions.some((s) => !s.end && s.dev === deviceId)) return fail('الجهاز مشغول بالفعل');
       const s = {
-        id: S.seq++, dev: d.id, dn: d.name, dt: d.type, mode,
+        id: uid(), no: S.seq++, dev: d.id, dn: d.name, dt: d.type, mode,
         rate: rateFor(S.settings, d.type, mode), plan: plan > 0 ? plan : 0,
         customer: (customer || '').trim(), start: Date.now(), paused: 0,
         status: 'running', pay: 'unpaid', amount: 0, adj: 0,
@@ -103,7 +103,7 @@ export const sessionService = (store) => ({
       if (!s) return;
       for (const i of s.items || []) {
         const d = findProduct(S, i.id);
-        if (d) applyMove(S, d, i.q, 'ret', 'حذف جلسة #' + id);
+        if (d) applyMove(S, d, i.q, 'ret', 'حذف جلسة #' + sessionNo(s));
       }
       S.sessions = S.sessions.filter((x) => x.id !== id);
     });
@@ -123,7 +123,7 @@ export const sessionService = (store) => ({
         items.push(line);
       }
       line.q += delta;
-      applyMove(S, k, -delta, 'sess', 'جلسة #' + id);
+      applyMove(S, k, -delta, 'sess', 'جلسة #' + sessionNo(s));
       if (line.q <= 0) s.items = items.filter((x) => x !== line);
       return ok();
     });
