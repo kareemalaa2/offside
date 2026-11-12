@@ -2,6 +2,7 @@
 import { esc, fmt, dur, fmtTime } from '../core/utils.js';
 import { MODE, PAY } from '../core/labels.js';
 import { segments, elapsed, sessionTotal, ceilingDiff } from '../domain/pricing.js';
+import { sessionNo } from '../domain/period.js';
 
 export const stat = (label, value, sub = '', extraCls = '') =>
   `<div class="st ${extraCls}"><span>${label}</span><b>${value}</b><span>${sub}</span></div>`;
@@ -69,7 +70,7 @@ export function invoiceText(S, s, now = Date.now()) {
     st.phone && `📞 ${st.phone}`,
     st.addr && `📍 ${st.addr}`,
     '----------------',
-    `فاتورة #${s.id} – ${s.dn}`,
+    `فاتورة #${sessionNo(s)} – ${s.dn}`,
     ...segments(s, st, now).map((g) => `${MODE[g.mode]} ${dur(g.ms)} = ${fmt(g.c)} ج`),
     ...(s.items || []).map((i) => `${i.n} × ${i.q} = ${fmt(i.p * i.q)} ج`),
     s.adj ? `تعديل: ${fmt(s.adj)} ج` : '',

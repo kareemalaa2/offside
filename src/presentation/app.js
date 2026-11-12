@@ -142,7 +142,20 @@ function tick() {
     else ui.liveInvoiceId = null;
   }
 
-  if (ui.view === 'home' && !ui.modalOpen) home.live();
+  if (ui.remoteDirty && safeToRender()) {
+    ui.remoteDirty = false;
+    render();
+  } else if (ui.view === 'home' && !ui.modalOpen) home.live();
+}
+
+/* ---------- changes coming from other devices ---------- */
+const safeToRender = () =>
+  !ui.modalOpen && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName || '');
+
+export function applyRemote(remote) {
+  ctx.store.replace(remote);
+  if (safeToRender()) render();
+  else ui.remoteDirty = true; // don't wipe what the user is typing; refresh right after
 }
 
 export function startApp() {
