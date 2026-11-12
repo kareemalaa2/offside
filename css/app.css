@@ -28,6 +28,11 @@ header {
 .sync { margin-inline-start: auto; font-size: 11px; padding: 2px 8px; border-radius: 20px; background: #222; white-space: nowrap; }
 .sync.ok { color: var(--ok); } .sync.pending { color: var(--warn); } .sync.offline { color: var(--red2); }
 .sync:empty { display: none; }
+.role-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: #1e3a5f; color: #93c5fd; white-space: nowrap; }
+.role-badge:empty { display: none; }
+/* view-only accounts: edit controls are removed, fields are locked */
+.ro-hide { display: none !important; }
+body.viewer input:disabled, body.viewer select:disabled, body.viewer textarea:disabled { opacity: .75; cursor: default; }
 #login { display: none; position: fixed; inset: 0; z-index: 40; background: var(--bg); overflow: auto; padding: calc(var(--safe-t) + 24px) 16px 24px; }
 #login.on { display: flex; align-items: center; justify-content: center; }
 .login-box { width: min(380px, 100%); background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--red); border-radius: 16px; padding: 20px; }
