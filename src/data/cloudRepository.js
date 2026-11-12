@@ -10,7 +10,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  doc, collection, onSnapshot, writeBatch,
+  doc, collection, onSnapshot, writeBatch, getDoc,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 export const LISTS = ['sessions', 'expenses', 'sales', 'buys', 'stm', 'cashm', 'closes', 'custs', 'books'];
@@ -40,6 +40,19 @@ export class CloudRepository {
     this.known = null; // what the cloud currently holds (stable JSON per record)
     this.unsubs = [];
     this.onError = () => {};
+    this.readOnly = false; // viewers never write
+  }
+
+  /** Role of the signed-in user from the staff list: 'owner' | 'staff' | 'viewer' | null (not allowed). */
+  async getRole() {
+    const email = this.email.toLowerCase();
+    if (!email) return null;
+    try {
+      const snap = await getDoc(doc(this.db, 'staff', email));
+      return snap.exists() ? snap.data().role || 'staff' : null;
+    } catch {
+      return undefined /* offline: unknown, keep last known role */;
+    }
   }
 
   /* ---------- auth ---------- */
@@ -133,7 +146,7 @@ export class CloudRepository {
   /* ---------- write only what changed ---------- */
   save(state) {
     const known = this.known;
-    if (!known) return; // not connected yet
+    if (!known || this.readOnly) return; // not connected yet, or a view-only account
     const ops = [];
 
     const meta = clean(pickMeta(state));
