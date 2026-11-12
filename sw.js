@@ -1,6 +1,6 @@
 // Service worker: makes the app open and work with no internet.
 // Bump VERSION whenever you change any file so phones pick up the update.
-const VERSION = 'offside-v2.2.0';
+const VERSION = 'offside-v2.3.0';
 const SHELL = [
   './',
   './index.html',
@@ -93,6 +93,31 @@ self.addEventListener('notificationclick', (e) => {
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
       for (const c of list) if ('focus' in c) return c.focus();
       return self.clients.openWindow('./');
+    }),
+  );
+});
+
+// Background push (sent by the OFFSIDE notifier through Firebase Cloud Messaging).
+// Works even when the app is closed.
+self.addEventListener('push', (e) => {
+  let p = {};
+  try {
+    p = e.data ? e.data.json() : {};
+  } catch {
+    p = { data: { title: 'OFFSIDE', body: e.data ? e.data.text() : '' } };
+  }
+  const d = p.data || p.notification || {};
+  e.waitUntil(
+    self.registration.showNotification(d.title || 'OFFSIDE', {
+      body: d.body || '',
+      tag: d.tag || 'offside',
+      renotify: true,
+      requireInteraction: d.kind === 'over',
+      icon: 'icons/icon-192.png',
+      badge: 'icons/icon-192.png',
+      vibrate: [300, 150, 300, 150, 300],
+      dir: 'rtl',
+      lang: 'ar',
     }),
   );
 });
