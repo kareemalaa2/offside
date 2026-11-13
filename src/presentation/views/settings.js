@@ -5,6 +5,7 @@ import { ctx, ui } from '../context.js';
 import { $, toast, saveFile, copyText } from '../ui.js';
 import { options } from '../components.js';
 import { notificationsSupported, notificationsOn, enableNotifications } from '../alerts.js';
+import { isViewer } from '../permissions.js';
 
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -27,6 +28,10 @@ function notifyBox() {
       : Notification.permission === 'denied'
         ? '<span class="red">الإشعارات مقفولة من إعدادات المتصفح/الموبايل – افتحها من هناك</span>'
         : '<button class="btn r" data-act="enableNotifications">🔔 تفعيل الإشعارات</button>';
+  if (isViewer())
+    return `<div class="box"><b>🔔 إشعار انتهاء الجلسات</b>
+    <p class="sm">كل ما جلسة تخلص فعلاً بيوصلك إشعار فيه الجهاز والمبلغ والمدة وطريقة الدفع، حتى لو التطبيق مقفول.</p>
+    ${status}</div>`;
   return `<div class="box"><b>🔔 تنبيه انتهاء الأجهزة</b>
     <p class="sm">قبل انتهاء أي جلسة بوقت محدد بـ <b>${+st.alert || 0} دقيقة</b> (من "قواعد الحساب" تحت) بيظهر تنبيه كبير على الشاشة مع صوت، وتاني لما الوقت يخلص. بيظهر على كل جهاز فاتح التطبيق، وكمان أول ما حد يفتح السيستم.</p>
     <p class="sm mut">وكمان بيوصل إشعار على الموبايل حتى لو التطبيق مقفول خالص (لازم تفعّله مرة على كل جهاز).</p>
